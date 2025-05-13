@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lioden Base Genetics Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f2f2f2;
+    }
+    h1 {
+      color: #333;
+    }
+    select, button {
+      margin: 10px 5px;
+      padding: 8px;
+    }
+    .cub-result {
+      background: white;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Lioden Base Calculator</h1>
+  <label>Parent 1 Base:</label>
+  <select id="parent1"></select>
+  <label>Parent 2 Base:</label>
+  <select id="parent2"></select>
+  <button onclick="simulateLitter()">Simulate 4 Cubs</button>
+
+  <div id="results"></div>
+
+  <script>
+    const bases = [
+      { name: "Kunzite", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Special" },
+      { name: "Duat", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Rare" },
+      { name: "Noctis", group: "Black", shade: "Dark", gradient: "Solid", rarity: "Rare" },
+      { name: "Temporal", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Rare" },
+      { name: "Hellebore", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Uncommon" },
+      { name: "Anjeer", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Uncommon" },
+      { name: "Cairngorm", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Rare" }
+    ];
+
+    const dropdown1 = document.getElementById("parent1");
+    const dropdown2 = document.getElementById("parent2");
+
+    bases.forEach(base => {
+      const opt = new Option(base.name, base.name);
+      dropdown1.add(opt.cloneNode(true));
+      dropdown2.add(opt.cloneNode(true));
+    });
+
+    function getBaseByName(name) {
+      return bases.find(b => b.name === name);
+    }
+
+    function getPossibleBase(parent1, parent2) {
+      // Simulate Kunzite logic: 4% chance to pass if both are special
+      const isSpecialPair = parent1.rarity === "Special" && parent2.rarity === "Special";
+      const passSpecial = Math.random() < 0.04;
+      if (isSpecialPair && passSpecial) return "Kunzite (Special)";
+      // Else randomly pick another base from same color group
+      const sameGroupBases = bases.filter(b => b.group === parent1.group && b.gradient === parent1.gradient);
+      return sameGroupBases[Math.floor(Math.random() * sameGroupBases.length)].name;
+    }
+
+    function simulateLitter() {
+      const p1 = getBaseByName(dropdown1.value);
+      const p2 = getBaseByName(dropdown2.value);
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "<h3>Litter Results:</h3>";
+
+      for (let i = 0; i < 4; i++) {
+        const base = getPossibleBase(p1, p2);
+        const cub = document.createElement("div");
+        cub.className = "cub-result";
+        cub.innerText = `Cub ${i + 1}: ${base}`;
+        resultsDiv.appendChild(cub);
+      }
+    }
+  </script>
+</body>
+</html>
