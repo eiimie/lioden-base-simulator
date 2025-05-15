@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lioden Genetics Simulator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f2f2f2;
       padding: 20px;
-      background-color: #f2f2f2;
     }
     h1 {
       color: #333;
     }
+    .parent-select {
+      margin-bottom: 20px;
+    }
     select, button {
-      margin: 10px 5px;
       padding: 8px;
+      margin: 5px;
     }
     .cub-result {
       background: white;
@@ -28,83 +31,150 @@
 </head>
 <body>
   <h1>Lioden Genetics Simulator</h1>
-  <h3>Parent 1 Genetics:</h3>
-  <label>Colour Group:</label>
-  <select id="p1Colour">
-    <option value="Black">Black</option>
-    <option value="Cream">Cream</option>
-    <option value="Golden">Golden</option>
-    <option value="Red">Red</option>
-  </select>
-  <label>Shade:</label>
-  <select id="p1Shade">
-    <option value="Dark">Dark</option>
-    <option value="Medium">Medium</option>
-    <option value="Light">Light</option>
-  </select>
+  <i>Last updated May 2025</i>
 
-  <h3>Parent 2 Genetics:</h3>
-  <label>Colour Group:</label>
-  <select id="p2Colour">
-    <option value="Black">Black</option>
-    <option value="Cream">Cream</option>
-    <option value="Golden">Golden</option>
-    <option value="Red">Red</option>
-  </select>
-  <label>Shade:</label>
-  <select id="p2Shade">
-    <option value="Dark">Dark</option>
-    <option value="Medium">Medium</option>
-    <option value="Light">Light</option>
-  </select>
+  <div class="parent-select">
+    <h3>Parent 1</h3>
+    <select id="p1-color">
+      <option>Black</option>
+      <option>Cream</option>
+      <option>Golden</option>
+      <option>Red</option>
+    </select>
+    <select id="p1-shade">
+      <option>Dark</option>
+      <option>Medium</option>
+      <option>Light</option>
+    </select>
+    <select id="p1-gradient">
+      <option>Countershaded</option>
+      <option>Solid</option>
+    </select>
+    <select id="p1-rarity">
+      <option>Common</option>
+      <option>Uncommon</option>
+      <option>Rare</option>
+      <option>Special</option>
+    </select>
+  </div>
+
+  <div class="parent-select">
+    <h3>Parent 2</h3>
+    <select id="p2-color">
+      <option>Black</option>
+      <option>Cream</option>
+      <option>Golden</option>
+      <option>Red</option>
+    </select>
+    <select id="p2-shade">
+      <option>Dark</option>
+      <option>Medium</option>
+      <option>Light</option>
+    </select>
+    <select id="p2-gradient">
+      <option>Countershaded</option>
+      <option>Solid</option>
+    </select>
+    <select id="p2-rarity">
+      <option>Common</option>
+      <option>Uncommon</option>
+      <option>Rare</option>
+      <option>Special</option>
+    </select>
+  </div>
 
   <button onclick="simulateLitter()">Simulate 4 Cubs</button>
-
   <div id="results"></div>
 
   <script>
-    function getColourResult(c1, c2) {
+    function getColorGroup(c1, c2) {
       return c1 === c2 ? c1 : (Math.random() < 0.5 ? c1 : c2);
     }
 
-    function getShadeResult(s1, s2) {
-      const combo = [s1, s2].sort().join("-");
+    function getShade(s1, s2) {
+      const pair = [s1, s2].sort().join("-");
       const rand = Math.random();
 
-      switch(combo) {
-        case "Dark-Dark": return "Dark";
-        case "Light-Light": return "Light";
-        case "Dark-Light":
-          if (rand < 0.25) return "Dark";
-          if (rand < 0.75) return "Medium";
-          return "Light";
-        case "Medium-Medium":
-          if (rand < 0.15) return "Dark";
-          if (rand < 0.85) return "Medium";
-          return "Light";
-        case "Dark-Medium":
-          return rand < 0.5 ? "Dark" : "Medium";
-        case "Light-Medium":
-          return rand < 0.5 ? "Light" : "Medium";
-        default: return "Medium"; // fallback
+      const table = {
+        "Dark-Dark": "Dark",
+        "Light-Light": "Light",
+        "Dark-Light": rand < 0.25 ? "Dark" : rand < 0.75 ? "Medium" : "Light",
+        "Medium-Medium": rand < 0.15 ? "Dark" : rand < 0.85 ? "Medium" : "Light",
+        "Dark-Medium": rand < 0.5 ? "Dark" : "Medium",
+        "Light-Medium": rand < 0.5 ? "Light" : "Medium"
+      };
+
+      return table[pair] || "Medium";
+    }
+
+    function getGradient(g1, g2) {
+      return g1 === g2 ? g1 : (Math.random() < 0.5 ? g1 : g2);
+    }
+
+    function getRarity(r1, r2) {
+      const rand = Math.random();
+      let c = 0; // common
+      let u = 0; // uncommon
+      let r = 0; // rare
+      let s = 0; // special
+
+      const pair = [r1, r2].sort().join("-");
+
+      switch (pair) {
+        case "Common-Common":
+          [c, u, r, s] = [1.0, 0, 0, 0]; break;
+        case "Common-Uncommon":
+          [c, u, r, s] = [0.90, 0.07, 0.03, 0]; break;
+        case "Common-Rare":
+          [c, u, r, s] = [0.88, 0.08, 0.04, 0]; break;
+        case "Common-Special":
+          [c, u, r, s] = [0.85, 0.08, 0.06, 0.01]; break;
+        case "Uncommon-Uncommon":
+          [c, u, r, s] = [0.80, 0.10, 0.10, 0]; break;
+        case "Rare-Uncommon":
+        case "Uncommon-Rare":
+          [c, u, r, s] = [0.75, 0.15, 0.10, 0]; break;
+        case "Uncommon-Special":
+          [c, u, r, s] = [0.70, 0.15, 0.13, 0.02]; break;
+        case "Rare-Rare":
+          [c, u, r, s] = [0.65, 0.15, 0.20, 0]; break;
+        case "Rare-Special":
+          [c, u, r, s] = [0.68, 0.15, 0.15, 0.02]; break;
+        case "Special-Special":
+          [c, u, r, s] = [0.65, 0.15, 0.16, 0.04]; break;
+        default:
+          [c, u, r, s] = [1.0, 0, 0, 0]; break;
       }
+
+      if (rand < c) return "Common";
+      else if (rand < c + u) return "Uncommon";
+      else if (rand < c + u + r) return "Rare";
+      else return "Special";
     }
 
     function simulateLitter() {
-      const p1Colour = document.getElementById("p1Colour").value;
-      const p2Colour = document.getElementById("p2Colour").value;
-      const p1Shade = document.getElementById("p1Shade").value;
-      const p2Shade = document.getElementById("p2Shade").value;
+      const p1color = document.getElementById("p1-color").value;
+      const p1shade = document.getElementById("p1-shade").value;
+      const p1gradient = document.getElementById("p1-gradient").value;
+      const p1rarity = document.getElementById("p1-rarity").value;
+
+      const p2color = document.getElementById("p2-color").value;
+      const p2shade = document.getElementById("p2-shade").value;
+      const p2gradient = document.getElementById("p2-gradient").value;
+      const p2rarity = document.getElementById("p2-rarity").value;
 
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = "<h3>Litter Results:</h3>";
 
       for (let i = 0; i < 4; i++) {
-        const colour = getColourResult(p1Colour, p2Colour);
-        const shade = getShadeResult(p1Shade, p2Shade);
+        const cubColor = getColorGroup(p1color, p2color);
+        const cubShade = getShade(p1shade, p2shade);
+        const cubGradient = getGradient(p1gradient, p2gradient);
+        const cubRarity = getRarity(p1rarity, p2rarity);
+
         const cub = document.createElement("div");
         cub.className = "cub-result";
-        cub.innerText = `Cub ${i + 1}: ${colour} | ${shade}`;
+        cub.innerText = `Cub ${i + 1}: ${cubColor}, ${cubShade}, ${cubGradient}, ${cubRarity}`;
         resultsDiv.appendChild(cub);
       }
     }
