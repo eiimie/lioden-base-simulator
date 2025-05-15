@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lioden Base Genetics Calculator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lioden Genetics Simulator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -27,60 +27,84 @@
   </style>
 </head>
 <body>
-  <h1>Lioden Base Calculator</h1>
-  <label>Parent 1 Base:</label>
-  <select id="parent1"></select>
-  <label>Parent 2 Base:</label>
-  <select id="parent2"></select>
+  <h1>Lioden Genetics Simulator</h1>
+  <h3>Parent 1 Genetics:</h3>
+  <label>Colour Group:</label>
+  <select id="p1Colour">
+    <option value="Black">Black</option>
+    <option value="Cream">Cream</option>
+    <option value="Golden">Golden</option>
+    <option value="Red">Red</option>
+  </select>
+  <label>Shade:</label>
+  <select id="p1Shade">
+    <option value="Dark">Dark</option>
+    <option value="Medium">Medium</option>
+    <option value="Light">Light</option>
+  </select>
+
+  <h3>Parent 2 Genetics:</h3>
+  <label>Colour Group:</label>
+  <select id="p2Colour">
+    <option value="Black">Black</option>
+    <option value="Cream">Cream</option>
+    <option value="Golden">Golden</option>
+    <option value="Red">Red</option>
+  </select>
+  <label>Shade:</label>
+  <select id="p2Shade">
+    <option value="Dark">Dark</option>
+    <option value="Medium">Medium</option>
+    <option value="Light">Light</option>
+  </select>
+
   <button onclick="simulateLitter()">Simulate 4 Cubs</button>
 
   <div id="results"></div>
 
   <script>
-    const bases = [
-      { name: "Kunzite", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Special" },
-      { name: "Duat", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Rare" },
-      { name: "Noctis", group: "Black", shade: "Dark", gradient: "Solid", rarity: "Rare" },
-      { name: "Temporal", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Rare" },
-      { name: "Hellebore", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Uncommon" },
-      { name: "Anjeer", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Uncommon" },
-      { name: "Cairngorm", group: "Black", shade: "Light", gradient: "Countershaded", rarity: "Rare" }
-    ];
-
-    const dropdown1 = document.getElementById("parent1");
-    const dropdown2 = document.getElementById("parent2");
-
-    bases.forEach(base => {
-      const opt = new Option(base.name, base.name);
-      dropdown1.add(opt.cloneNode(true));
-      dropdown2.add(opt.cloneNode(true));
-    });
-
-    function getBaseByName(name) {
-      return bases.find(b => b.name === name);
+    function getColourResult(c1, c2) {
+      return c1 === c2 ? c1 : (Math.random() < 0.5 ? c1 : c2);
     }
 
-    function getPossibleBase(parent1, parent2) {
-      // Simulate Kunzite logic: 4% chance to pass if both are special
-      const isSpecialPair = parent1.rarity === "Special" && parent2.rarity === "Special";
-      const passSpecial = Math.random() < 0.04;
-      if (isSpecialPair && passSpecial) return "Kunzite (Special)";
-      // Else randomly pick another base from same color group
-      const sameGroupBases = bases.filter(b => b.group === parent1.group && b.gradient === parent1.gradient);
-      return sameGroupBases[Math.floor(Math.random() * sameGroupBases.length)].name;
+    function getShadeResult(s1, s2) {
+      const combo = [s1, s2].sort().join("-");
+      const rand = Math.random();
+
+      switch(combo) {
+        case "Dark-Dark": return "Dark";
+        case "Light-Light": return "Light";
+        case "Dark-Light":
+          if (rand < 0.25) return "Dark";
+          if (rand < 0.75) return "Medium";
+          return "Light";
+        case "Medium-Medium":
+          if (rand < 0.15) return "Dark";
+          if (rand < 0.85) return "Medium";
+          return "Light";
+        case "Dark-Medium":
+          return rand < 0.5 ? "Dark" : "Medium";
+        case "Light-Medium":
+          return rand < 0.5 ? "Light" : "Medium";
+        default: return "Medium"; // fallback
+      }
     }
 
     function simulateLitter() {
-      const p1 = getBaseByName(dropdown1.value);
-      const p2 = getBaseByName(dropdown2.value);
+      const p1Colour = document.getElementById("p1Colour").value;
+      const p2Colour = document.getElementById("p2Colour").value;
+      const p1Shade = document.getElementById("p1Shade").value;
+      const p2Shade = document.getElementById("p2Shade").value;
+
       const resultsDiv = document.getElementById("results");
       resultsDiv.innerHTML = "<h3>Litter Results:</h3>";
 
       for (let i = 0; i < 4; i++) {
-        const base = getPossibleBase(p1, p2);
+        const colour = getColourResult(p1Colour, p2Colour);
+        const shade = getShadeResult(p1Shade, p2Shade);
         const cub = document.createElement("div");
         cub.className = "cub-result";
-        cub.innerText = `Cub ${i + 1}: ${base}`;
+        cub.innerText = `Cub ${i + 1}: ${colour} | ${shade}`;
         resultsDiv.appendChild(cub);
       }
     }
